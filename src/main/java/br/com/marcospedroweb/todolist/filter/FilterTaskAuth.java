@@ -57,11 +57,13 @@ public class FilterTaskAuth extends OncePerRequestFilter {
       if (user == null) {
         response.sendError(401, "Usuario sem autorização");
       } else {
+        // valida senha
         var passwordVerify = BCrypt.verifyer().verify(password.toCharArray(),
             user.getPassword());
         if (passwordVerify.verified) {
+          request.setAttribute("idUser", user.getId());// Set attribute para controller
           filterChain.doFilter(request, response);
-          return;
+
         } else {
           response.sendError(401);
         }
