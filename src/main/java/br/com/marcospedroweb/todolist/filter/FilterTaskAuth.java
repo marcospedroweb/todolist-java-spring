@@ -21,14 +21,22 @@ public class FilterTaskAuth extends OncePerRequestFilter {
   private IUserRepository userRepository;
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+  protected void doFilterInternal(HttpServletRequest request,
+      HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
     var servletPath = request.getServletPath();
 
     if (servletPath.equals("/tasks/")) {
+
       // Pega a autenticação (usuario e senha)
       var authorization = request.getHeader("Authorization");
+
+      // valida authorization
+      if (authorization == null || !authorization.startsWith("Basic ")) {
+        response.sendError(401, "Authorization header inválido ou ausente");
+        return;
+      }
 
       // extrai parte de texto
       var authEncoded = authorization.substring("Basic".length()).trim();
@@ -49,14 +57,19 @@ public class FilterTaskAuth extends OncePerRequestFilter {
       if (user == null) {
         response.sendError(401, "Usuario sem autorização");
       } else {
-        var passwordVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
+        var passwordVerify = BCrypt.verifyer().verify(password.toCharArray(),
+            user.getPassword());
         if (passwordVerify.verified) {
           filterChain.doFilter(request, response);
+          return;
         } else {
           response.sendError(401);
         }
 
       }
+    } else {
+      filterChain.doFilter(request, response);
     }
+
   }
 }
