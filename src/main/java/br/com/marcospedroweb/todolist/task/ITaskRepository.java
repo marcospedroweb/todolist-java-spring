@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ITaskRepository extends JpaRepository<TaskModel, UUID> {
   List<TaskModel> findByIdUser(UUID idUser); // Lista os tasks de tal usuario
+
+  TaskModel findByIdAndIdUser(UUID id, UUID idUser);
 }
