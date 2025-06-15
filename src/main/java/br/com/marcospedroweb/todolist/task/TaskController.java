@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.marcospedroweb.todolist.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,10 +58,11 @@ public class TaskController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity update(@PathVariable UUID id, @RequestBody TaskModel taskModel, HttpServletRequest request) {
-    var idUser = request.getAttribute("idUser");
-    taskModel.setIdUser((UUID) idUser);
-    taskModel.setId((UUID) id);
-    return ResponseEntity.status(HttpStatus.OK).body("");
+  public TaskModel update(@PathVariable UUID id, @RequestBody TaskModel taskModel, HttpServletRequest request) {
+    var task = this.taskRepository.findById(id).orElseThrow(null);
+
+    Utils.copyNonNullProperties(taskModel, task); // faz a mescla com os novos dados com os null
+
+    return this.taskRepository.save(task);
   }
 }
