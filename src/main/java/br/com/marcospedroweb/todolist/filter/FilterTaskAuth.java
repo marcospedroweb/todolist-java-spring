@@ -27,7 +27,7 @@ public class FilterTaskAuth extends OncePerRequestFilter {
 
     var servletPath = request.getServletPath();
 
-    if (servletPath.equals("/tasks/")) {
+    if (servletPath.startsWith("/tasks/")) {
 
       // Pega a autenticação (usuario e senha)
       var authorization = request.getHeader("Authorization");
@@ -61,7 +61,7 @@ public class FilterTaskAuth extends OncePerRequestFilter {
         var passwordVerify = BCrypt.verifyer().verify(password.toCharArray(),
             user.getPassword());
         if (passwordVerify.verified) {
-          request.setAttribute("idUser", user.getId());// Set attribute para controller
+          request.setAttribute("idUser", user.getId());// Set attribute para controller, podendo ser usado nos requests
           filterChain.doFilter(request, response);
 
         } else {
